@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"greenlight.dimash.net/internal/data"
+	"greenlight.dimash.net/internal/validator"
 	"net/http"
 	"time"
 )
@@ -19,6 +20,20 @@ func (app *application) createCraftingMaterialHandler(w http.ResponseWriter, r *
 	err := app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	material := data.CraftingMaterials{
+		Title: input.Title,
+		Year:  input.Year,
+		Price: input.Price,
+	}
+
+	// Initialize a new Validator instance.
+	v := validator.New()
+	data.ValidateMovie(v, material)
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
