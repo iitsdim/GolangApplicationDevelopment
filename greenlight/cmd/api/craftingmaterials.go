@@ -10,7 +10,19 @@ import (
 // Add a createMovieHandler for the "POST /v1/crafting_materials" endpoint. For now we simply
 // return a plain-text placeholder response.
 func (app *application) createCraftingMaterialHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "create a new crafting Material")
+	var input struct {
+		Title string `json:"title"`
+		Year  int32  `json:"year"`
+		Price int32  `json:"price"`
+	}
+
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	fmt.Fprintf(w, "%+v\n", input)
 }
 
 // Add a showMovieHandler for the "GET /v1/crafting_materials/:id" endpoint. For now, we retrieve
