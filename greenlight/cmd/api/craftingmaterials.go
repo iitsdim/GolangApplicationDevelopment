@@ -28,12 +28,11 @@ func (app *application) showCraftingMaterialHandler(w http.ResponseWriter, r *ht
 		CreatedAt: time.Now(),
 		Title:     "Speciality Papers",
 		Year:      2022,
+		Price:     10000,
 	}
 
-	err = app.writeJSON(w, http.StatusOK, craftingMaterial, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"crafting_materials": craftingMaterial}, nil)
 	if err != nil {
-		app.logger.Println(err)
-		http.Error(w, "The server encountered "+
-			"a problem and could not process your request", http.StatusInternalServerError)
+		app.serverErrorResponse(w, r, err)
 	}
 }

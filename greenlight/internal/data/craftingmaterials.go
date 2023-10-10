@@ -5,8 +5,9 @@ import (
 )
 
 type CraftingMaterials struct {
-	ID        int64
-	Title     string
-	Year      int32
-	CreatedAt time.Time
+	ID        int64     `json:"id"`
+	Title     string    `json:"title"`
+	Year      int32     `json:"year,omitempty"`
+	Price     Price     `json:"price,string"`
+	CreatedAt time.Time `json:"-"`
 }
