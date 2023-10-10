@@ -11,9 +11,9 @@ import (
 // return a plain-text placeholder response.
 func (app *application) createCraftingMaterialHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		Title string `json:"title"`
-		Year  int32  `json:"year"`
-		Price int32  `json:"price"`
+		Title string     `json:"title"`
+		Year  int32      `json:"year"`
+		Price data.Price `json:"price"`
 	}
 
 	err := app.readJSON(w, r, &input)
