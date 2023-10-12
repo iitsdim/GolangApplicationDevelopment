@@ -13,7 +13,7 @@ type CraftingMaterials struct {
 	CreatedAt time.Time `json:"-"`
 }
 
-func ValidateMovie(v *validator.Validator, materials CraftingMaterials) {
+func ValidateCraftingMaterial(v *validator.Validator, materials CraftingMaterials) {
 	v.Check(materials.Title != "", "title", "must be provided")
 	v.Check(len(materials.Title) <= 500, "title", "must not be more than 500 bytes long")
 	v.Check(materials.Year >= 1888, "year", "must be greater than 1888")

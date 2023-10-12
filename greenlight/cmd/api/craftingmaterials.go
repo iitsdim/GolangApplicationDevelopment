@@ -8,7 +8,8 @@ import (
 	"time"
 )
 
-// Add a createMovieHandler for the "POST /v1/crafting_materials" endpoint. For now we simply
+//	for the "POST /v1/crafting_materials" endpoint. For now we simply
+//
 // return a plain-text placeholder response.
 func (app *application) createCraftingMaterialHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
@@ -31,7 +32,7 @@ func (app *application) createCraftingMaterialHandler(w http.ResponseWriter, r *
 
 	// Initialize a new Validator instance.
 	v := validator.New()
-	data.ValidateMovie(v, material)
+	data.ValidateCraftingMaterial(v, material)
 	if !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
@@ -40,7 +41,8 @@ func (app *application) createCraftingMaterialHandler(w http.ResponseWriter, r *
 	fmt.Fprintf(w, "%+v\n", input)
 }
 
-// Add a showMovieHandler for the "GET /v1/crafting_materials/:id" endpoint. For now, we retrieve
+//	for the "GET /v1/crafting_materials/:id" endpoint. For now, we retrieve
+//
 // the interpolated "id" parameter from the current URL and include it in a placeholder
 // response.
 func (app *application) showCraftingMaterialHandler(w http.ResponseWriter, r *http.Request) {
