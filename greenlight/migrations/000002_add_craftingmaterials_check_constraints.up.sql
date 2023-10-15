@@ -1,0 +1,2 @@
+ALTER TABLE craftingmaterials ADD CONSTRAINT craftingmaterials_price_check CHECK (price > 0);
+ALTER TABLE craftingmaterials ADD CONSTRAINT craftingmaterials_year_check CHECK (year BETWEEN 1888 AND date_part('year', now()));

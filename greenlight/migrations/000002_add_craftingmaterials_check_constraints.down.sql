@@ -1,0 +1,2 @@
+ALTER TABLE craftingmaterials DROP CONSTRAINT IF EXISTS craftingmaterials_price_check;
+ALTER TABLE craftingmaterials DROP CONSTRAINT IF EXISTS craftingmaterials_year_check;
