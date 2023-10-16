@@ -14,3 +14,13 @@ connections to DB
 $ docker exec -it $DOCKER_DB bash
 $ psql -U postgres
 ```
+
+create migration to DB
+```shell
+$ migrate create -seq -ext=.sql -dir=./migrations name
+```
+
+migrate up/down(apply/revert)
+```shell
+migrate -path=./migrations -database=$GREENLIGHT_DB_DSN up
+```
