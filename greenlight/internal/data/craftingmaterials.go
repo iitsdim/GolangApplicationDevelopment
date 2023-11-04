@@ -14,7 +14,7 @@ type CraftingMaterials struct {
 	CreatedAt time.Time `json:"-"`
 }
 
-func ValidateCraftingMaterial(v *validator.Validator, materials CraftingMaterials) {
+func ValidateCraftingMaterial(v *validator.Validator, materials *CraftingMaterials) {
 	v.Check(materials.Title != "", "title", "must be provided")
 	v.Check(len(materials.Title) <= 500, "title", "must not be more than 500 bytes long")
 	v.Check(materials.Year >= 1888, "year", "must be greater than 1888")
@@ -26,16 +26,12 @@ type CraftingMaterialModel struct {
 	DB *sql.DB
 }
 
-func (m CraftingMaterialModel) insert(craftingMaterial *CraftingMaterials) error {
-	return nil
-}
-
 // Add a placeholder method for fetching a specific record from the movies table.
 func (m CraftingMaterialModel) Get(id int64) (*CraftingMaterials, error) {
 	return nil, nil
 }
 
-func (m CraftingMaterialModel) Update(craftingMaterial *CraftingMaterials) error {
+func (m CraftingMaterialModel) Update(material *CraftingMaterials) error {
 	return nil
 }
 
@@ -43,24 +39,12 @@ func (m CraftingMaterialModel) Delete(id int64) error {
 	return nil
 }
 
-type MockCraftingMaterialModel struct{}
+func (m CraftingMaterialModel) Insert(material *CraftingMaterials) error {
+	query := `
+	INSERT INTO craftingmaterials (title, year, price) 
+	VALUES ($1, $2, $3) RETURNING id, created_at`
 
-func (m MockCraftingMaterialModel) Insert(movie *Movie) error {
-	// Mock the action...
-	return nil
-}
-
-func (m MockCraftingMaterialModel) Get(id int64) (*CraftingMaterials, error) {
-	// Mock the action...
-	return nil, nil
-}
-
-func (m MockCraftingMaterialModel) Update(movie *Movie) error {
-	// Mock the action...
-	return nil
-}
-
-func (m MockCraftingMaterialModel) Delete(id int64) error {
-	// Mock the action...
-	return nil
+	args := []interface{}{material.Title, material.Year, material.Price}
+	res := m.DB.QueryRow(query, args...).Scan(&material.ID, &material.CreatedAt)
+	return res
 }

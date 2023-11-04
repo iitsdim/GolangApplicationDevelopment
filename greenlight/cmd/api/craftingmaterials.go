@@ -24,7 +24,7 @@ func (app *application) createCraftingMaterialHandler(w http.ResponseWriter, r *
 		return
 	}
 
-	material := data.CraftingMaterials{
+	craftingMaterial := &data.CraftingMaterials{
 		Title: input.Title,
 		Year:  input.Year,
 		Price: input.Price,
@@ -32,13 +32,25 @@ func (app *application) createCraftingMaterialHandler(w http.ResponseWriter, r *
 
 	// Initialize a new Validator instance.
 	v := validator.New()
-	data.ValidateCraftingMaterial(v, material)
+	data.ValidateCraftingMaterial(v, craftingMaterial)
 	if !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
-	fmt.Fprintf(w, "%+v\n", input)
+	err = app.models.CraftingMaterials.Insert(craftingMaterial)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	headers := make(http.Header)
+	headers.Set("Location", fmt.Sprintf("/v1/crafting_materials/%d", craftingMaterial.ID))
+
+	err = app.writeJSON(w, http.StatusCreated, envelope{"crafting_material": craftingMaterial}, headers)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 //	for the "GET /v1/crafting_materials/:id" endpoint. For now, we retrieve
