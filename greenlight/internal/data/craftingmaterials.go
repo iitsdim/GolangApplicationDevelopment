@@ -42,3 +42,25 @@ func (m CraftingMaterialModel) Update(craftingMaterial *CraftingMaterials) error
 func (m CraftingMaterialModel) Delete(id int64) error {
 	return nil
 }
+
+type MockCraftingMaterialModel struct{}
+
+func (m MockCraftingMaterialModel) Insert(movie *Movie) error {
+	// Mock the action...
+	return nil
+}
+
+func (m MockCraftingMaterialModel) Get(id int64) (*CraftingMaterials, error) {
+	// Mock the action...
+	return nil, nil
+}
+
+func (m MockCraftingMaterialModel) Update(movie *Movie) error {
+	// Mock the action...
+	return nil
+}
+
+func (m MockCraftingMaterialModel) Delete(id int64) error {
+	// Mock the action...
+	return nil
+}
