@@ -1,11 +1,11 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"greenlight.dimash.net/internal/data"
 	"greenlight.dimash.net/internal/validator"
 	"net/http"
-	"time"
 )
 
 //	for the "POST /v1/crafting_materials" endpoint. For now we simply
@@ -64,12 +64,17 @@ func (app *application) showCraftingMaterialHandler(w http.ResponseWriter, r *ht
 		return
 	}
 
-	craftingMaterial := data.CraftingMaterials{
-		ID:        id,
-		CreatedAt: time.Now(),
-		Title:     "Speciality Papers",
-		Year:      2022,
-		Price:     10000,
+	craftingMaterial, err := app.models.CraftingMaterials.Get(id)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+
+		return
 	}
 
 	err = app.writeJSON(w, http.StatusOK, envelope{"crafting_materials": craftingMaterial}, nil)

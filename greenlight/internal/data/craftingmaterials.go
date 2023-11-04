@@ -2,6 +2,7 @@ package data
 
 import (
 	"database/sql"
+	"errors"
 	"greenlight.dimash.net/internal/validator"
 	"time"
 )
@@ -28,7 +29,35 @@ type CraftingMaterialModel struct {
 
 // Add a placeholder method for fetching a specific record from the movies table.
 func (m CraftingMaterialModel) Get(id int64) (*CraftingMaterials, error) {
-	return nil, nil
+	if id < 1 {
+		return nil, ErrRecordNotFound
+	}
+
+	query := `
+	SELECT id, year, price, title, created_at 
+	from craftingmaterials
+	where id = $1`
+
+	var material CraftingMaterials
+
+	err := m.DB.QueryRow(query, id).Scan(
+		&material.ID,
+		&material.Year,
+		&material.Price,
+		&material.Title,
+		&material.CreatedAt,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &material, nil
 }
 
 func (m CraftingMaterialModel) Update(material *CraftingMaterials) error {
