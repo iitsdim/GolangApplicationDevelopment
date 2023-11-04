@@ -1,6 +1,7 @@
 package data
 
 import (
+	"database/sql"
 	"greenlight.dimash.net/internal/validator"
 	"time"
 )
@@ -19,4 +20,25 @@ func ValidateCraftingMaterial(v *validator.Validator, materials CraftingMaterial
 	v.Check(materials.Year >= 1888, "year", "must be greater than 1888")
 	v.Check(materials.Year <= int32(time.Now().Year()), "year", "must not be in the future")
 	v.Check(materials.Price > 0, "runtime", "must be a positive integer")
+}
+
+type CraftingMaterialModel struct {
+	DB *sql.DB
+}
+
+func (m CraftingMaterialModel) insert(craftingMaterial *CraftingMaterials) error {
+	return nil
+}
+
+// Add a placeholder method for fetching a specific record from the movies table.
+func (m CraftingMaterialModel) Get(id int64) (*CraftingMaterials, error) {
+	return nil, nil
+}
+
+func (m CraftingMaterialModel) Update(craftingMaterial *CraftingMaterials) error {
+	return nil
+}
+
+func (m CraftingMaterialModel) Delete(id int64) error {
+	return nil
 }
