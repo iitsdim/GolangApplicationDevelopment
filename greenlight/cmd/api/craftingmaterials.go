@@ -104,9 +104,9 @@ func (app *application) updateCraftingMaterialHandler(w http.ResponseWriter, r *
 	}
 
 	var input struct {
-		Title string     `json:"title"`
-		Year  int32      `json:"year"`
-		Price data.Price `json:"price"`
+		Title *string     `json:"title"`
+		Year  *int32      `json:"year"`
+		Price *data.Price `json:"price"`
 	}
 
 	err = app.readJSON(w, r, &input)
@@ -115,9 +115,15 @@ func (app *application) updateCraftingMaterialHandler(w http.ResponseWriter, r *
 		return
 	}
 
-	craftingMaterial.Year = input.Year
-	craftingMaterial.Title = input.Title
-	craftingMaterial.Price = input.Price
+	if input.Year != nil {
+		craftingMaterial.Year = *input.Year
+	}
+	if input.Title != nil {
+		craftingMaterial.Title = *input.Title
+	}
+	if input.Price != nil {
+		craftingMaterial.Price = *input.Price
+	}
 
 	v := validator.New()
 	data.ValidateCraftingMaterial(v, craftingMaterial)
