@@ -20,7 +20,7 @@ func ValidateCraftingMaterial(v *validator.Validator, materials *CraftingMateria
 	v.Check(len(materials.Title) <= 500, "title", "must not be more than 500 bytes long")
 	v.Check(materials.Year >= 1888, "year", "must be greater than 1888")
 	v.Check(materials.Year <= int32(time.Now().Year()), "year", "must not be in the future")
-	v.Check(materials.Price > 0, "runtime", "must be a positive integer")
+	v.Check(materials.Price > 0, "Price", "must be a positive integer")
 }
 
 type CraftingMaterialModel struct {
@@ -61,10 +61,41 @@ func (m CraftingMaterialModel) Get(id int64) (*CraftingMaterials, error) {
 }
 
 func (m CraftingMaterialModel) Update(material *CraftingMaterials) error {
-	return nil
+	query := `
+	UPDATE craftingmaterials
+	SET title = $1, year = $2, price = $3
+	WHERE id = $4`
+
+	args := []interface{}{material.Title, material.Year, material.Price, material.ID}
+	return m.DB.QueryRow(query, args...).Err()
 }
 
 func (m CraftingMaterialModel) Delete(id int64) error {
+	if id < 1 {
+		return ErrRecordNotFound
+	}
+
+	query := `
+	DELETE from craftingmaterials
+	where id = $1`
+
+	result, err := m.DB.Exec(query, id)
+	if err != nil {
+		return err
+	}
+
+	// Call the RowsAffected() method on the sql.Result object to get the number of rows
+	// affected by the query.
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	// return an ErrRecordNotFound error.
+	if rowsAffected == 0 {
+		return ErrRecordNotFound
+	}
+
 	return nil
 }
 

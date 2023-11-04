@@ -60,7 +60,7 @@ func (app *application) createCraftingMaterialHandler(w http.ResponseWriter, r *
 func (app *application) showCraftingMaterialHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil || id < 1 {
-		http.NotFound(w, r)
+		app.notFoundResponse(w, r)
 		return
 	}
 
@@ -78,6 +78,87 @@ func (app *application) showCraftingMaterialHandler(w http.ResponseWriter, r *ht
 	}
 
 	err = app.writeJSON(w, http.StatusOK, envelope{"crafting_materials": craftingMaterial}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+func (app *application) updateCraftingMaterialHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParam(r)
+	if err != nil || id < 1 {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	craftingMaterial, err := app.models.CraftingMaterials.Get(id)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+
+		return
+	}
+
+	var input struct {
+		Title string     `json:"title"`
+		Year  int32      `json:"year"`
+		Price data.Price `json:"price"`
+	}
+
+	err = app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	craftingMaterial.Year = input.Year
+	craftingMaterial.Title = input.Title
+	craftingMaterial.Price = input.Price
+
+	v := validator.New()
+	data.ValidateCraftingMaterial(v, craftingMaterial)
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+	fmt.Println(craftingMaterial)
+
+	err = app.models.CraftingMaterials.Update(craftingMaterial)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"crafting_materials": craftingMaterial}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+func (app *application) deleteCraftingMaterialHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParam(r)
+	if err != nil || id < 1 {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	err = app.models.CraftingMaterials.Delete(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": "crafting material successfully deleted"}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
