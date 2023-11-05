@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS craftingmaterials_title_idx ON craftingmaterials USING GIN (to_tsvector('simple', title));
