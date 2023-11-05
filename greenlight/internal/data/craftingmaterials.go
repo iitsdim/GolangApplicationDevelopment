@@ -13,6 +13,7 @@ type CraftingMaterials struct {
 	Year      int32     `json:"year,omitempty"`
 	Price     Price     `json:"price,string"`
 	CreatedAt time.Time `json:"-"`
+	Version   int32     `json:"version"`
 }
 
 func ValidateCraftingMaterial(v *validator.Validator, materials *CraftingMaterials) {
@@ -34,7 +35,7 @@ func (m CraftingMaterialModel) Get(id int64) (*CraftingMaterials, error) {
 	}
 
 	query := `
-	SELECT id, year, price, title, created_at 
+	SELECT id, year, price, title, created_at, version 
 	from craftingmaterials
 	where id = $1`
 
@@ -46,6 +47,7 @@ func (m CraftingMaterialModel) Get(id int64) (*CraftingMaterials, error) {
 		&material.Price,
 		&material.Title,
 		&material.CreatedAt,
+		&material.Version,
 	)
 
 	if err != nil {
@@ -102,9 +104,9 @@ func (m CraftingMaterialModel) Delete(id int64) error {
 func (m CraftingMaterialModel) Insert(material *CraftingMaterials) error {
 	query := `
 	INSERT INTO craftingmaterials (title, year, price) 
-	VALUES ($1, $2, $3) RETURNING id, created_at`
+	VALUES ($1, $2, $3) RETURNING id, created_at, version`
 
 	args := []interface{}{material.Title, material.Year, material.Price}
-	res := m.DB.QueryRow(query, args...).Scan(&material.ID, &material.CreatedAt)
+	res := m.DB.QueryRow(query, args...).Scan(&material.ID, &material.CreatedAt, &material.Version)
 	return res
 }
