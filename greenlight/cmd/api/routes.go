@@ -18,6 +18,7 @@ func (app *application) routes() *httprouter.Router {
 	// endpoints using the HandlerFunc() method
 
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
+	router.HandlerFunc(http.MethodGet, "/v1/crafting_materials", app.listCraftingMaterialsHandler)
 	router.HandlerFunc(http.MethodPost, "/v1/crafting_materials", app.createCraftingMaterialHandler)
 	router.HandlerFunc(http.MethodGet, "/v1/crafting_materials/:id", app.showCraftingMaterialHandler)
 	router.HandlerFunc(http.MethodPatch, "/v1/crafting_materials/:id", app.updateCraftingMaterialHandler)

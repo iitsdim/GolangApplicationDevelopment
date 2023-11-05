@@ -173,3 +173,39 @@ func (app *application) deleteCraftingMaterialHandler(w http.ResponseWriter, r *
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+func (app *application) listCraftingMaterialsHandler(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		Title string
+		data.Filters
+	}
+	v := validator.New()
+
+	qs := r.URL.Query()
+
+	input.Title = app.readString(qs, "title", "")
+	input.Filters.Page = app.readInt(qs, "page", 1, v)
+	input.Filters.PageSize = app.readInt(qs, "page_size", 20, v)
+
+	input.Filters.Sort = app.readString(qs, "sort", "id")
+	input.Filters.SortSafelist = []string{"id", "title", "year", "price", "-id", "-title", "-year", "-price"}
+
+	if data.ValidateFilters(v, input.Filters); !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+	// Call the GetAll() method to retrieve the movies, passing in the various filter
+	// parameters.
+	crafting_materials, err := app.models.CraftingMaterials.GetAll(input.Title, input.Filters)
+
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	// Send a JSON response containing the movie data.
+	err = app.writeJSON(w, http.StatusOK, envelope{"crafting_materials": crafting_materials}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}

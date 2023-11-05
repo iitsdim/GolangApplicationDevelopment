@@ -135,3 +135,52 @@ func (m CraftingMaterialModel) Insert(material *CraftingMaterials) error {
 	res := m.DB.QueryRowContext(ctx, query, args...).Scan(&material.ID, &material.CreatedAt, &material.Version)
 	return res
 }
+
+func (m CraftingMaterialModel) GetAll(title string, filters Filters) ([]*CraftingMaterials, error) {
+	query := `
+	SELECT id, created_at, title, year, price, version 
+	from craftingmaterials
+	order by id`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	rows, err := m.DB.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	// Importantly, defer a call to rows.Close() to ensure that the resultset is closed
+	// before GetAll() returns.
+
+	defer rows.Close()
+
+	// Initialize an empty slice to hold the movie data.
+	craftingMaterialsList := []*CraftingMaterials{}
+
+	// Use rows.Next to iterate through the rows in the resultset.
+	for rows.Next() {
+		// Initialize an empty Movie struct to hold the data for an individual movie.
+		var material CraftingMaterials
+		// Scan the values from the row into the Crafting Material struct.
+		err := rows.Scan(
+			&material.ID,
+			&material.CreatedAt,
+			&material.Title,
+			&material.Year,
+			&material.Price,
+			&material.Version,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		craftingMaterialsList = append(craftingMaterialsList, &material)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return craftingMaterialsList, nil
+}
