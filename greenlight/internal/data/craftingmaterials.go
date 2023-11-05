@@ -140,12 +140,13 @@ func (m CraftingMaterialModel) GetAll(title string, filters Filters) ([]*Craftin
 	query := `
 	SELECT id, created_at, title, year, price, version 
 	from craftingmaterials
+	where (LOWER(title) = LOWER($1) OR $1 = '')
 	order by id`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	rows, err := m.DB.QueryContext(ctx, query)
+	rows, err := m.DB.QueryContext(ctx, query, title)
 	if err != nil {
 		return nil, err
 	}
