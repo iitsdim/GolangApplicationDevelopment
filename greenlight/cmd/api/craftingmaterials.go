@@ -196,7 +196,7 @@ func (app *application) listCraftingMaterialsHandler(w http.ResponseWriter, r *h
 	}
 	// Call the GetAll() method to retrieve the movies, passing in the various filter
 	// parameters.
-	crafting_materials, err := app.models.CraftingMaterials.GetAll(input.Title, input.Filters)
+	crafting_materials, metadata, err := app.models.CraftingMaterials.GetAll(input.Title, input.Filters)
 
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -204,7 +204,10 @@ func (app *application) listCraftingMaterialsHandler(w http.ResponseWriter, r *h
 	}
 
 	// Send a JSON response containing the movie data.
-	err = app.writeJSON(w, http.StatusOK, envelope{"crafting_materials": crafting_materials}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{
+		"crafting_materials": crafting_materials,
+		"metadata":           metadata,
+	}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

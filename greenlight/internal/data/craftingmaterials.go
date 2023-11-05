@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"greenlight.dimash.net/internal/validator"
 	"time"
 )
@@ -136,19 +137,22 @@ func (m CraftingMaterialModel) Insert(material *CraftingMaterials) error {
 	return res
 }
 
-func (m CraftingMaterialModel) GetAll(title string, filters Filters) ([]*CraftingMaterials, error) {
-	query := `
-	SELECT id, created_at, title, year, price, version 
+func (m CraftingMaterialModel) GetAll(title string, filters Filters) ([]*CraftingMaterials, Metadata, error) {
+	query := fmt.Sprintf(`
+	SELECT count(*) OVER(), id, created_at, title, year, price, version 
 	from craftingmaterials
 	where (STRPOS(LOWER(title), LOWER($1)) > 0 OR $1 = '')
-	order by id`
+	order by %s %s, id ASC
+	LIMIT $2 OFFSET $3`, filters.sortColumn(), filters.sortDirection())
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	rows, err := m.DB.QueryContext(ctx, query, title)
+	args := []interface{}{title, filters.limit(), filters.offset()}
+
+	rows, err := m.DB.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, err
+		return nil, Metadata{}, err
 	}
 
 	// Importantly, defer a call to rows.Close() to ensure that the resultset is closed
@@ -158,13 +162,14 @@ func (m CraftingMaterialModel) GetAll(title string, filters Filters) ([]*Craftin
 
 	// Initialize an empty slice to hold the movie data.
 	craftingMaterialsList := []*CraftingMaterials{}
-
+	totalRecords := 0
 	// Use rows.Next to iterate through the rows in the resultset.
 	for rows.Next() {
 		// Initialize an empty Movie struct to hold the data for an individual movie.
 		var material CraftingMaterials
 		// Scan the values from the row into the Crafting Material struct.
 		err := rows.Scan(
+			&totalRecords,
 			&material.ID,
 			&material.CreatedAt,
 			&material.Title,
@@ -173,15 +178,17 @@ func (m CraftingMaterialModel) GetAll(title string, filters Filters) ([]*Craftin
 			&material.Version,
 		)
 		if err != nil {
-			return nil, err
+			return nil, Metadata{}, err
 		}
 
 		craftingMaterialsList = append(craftingMaterialsList, &material)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, Metadata{}, err
 	}
 
-	return craftingMaterialsList, nil
+	metadata := calculateMetadata(totalRecords, filters.Page, filters.PageSize)
+
+	return craftingMaterialsList, metadata, nil
 }
