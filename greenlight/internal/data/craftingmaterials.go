@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"greenlight.dimash.net/internal/validator"
@@ -41,7 +42,12 @@ func (m CraftingMaterialModel) Get(id int64) (*CraftingMaterials, error) {
 
 	var material CraftingMaterials
 
-	err := m.DB.QueryRow(query, id).Scan(
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	// Importantly, use defer to make sure that we cancel the context before the Get()
+	// method returns.
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, id).Scan(
 		&material.ID,
 		&material.Year,
 		&material.Price,
