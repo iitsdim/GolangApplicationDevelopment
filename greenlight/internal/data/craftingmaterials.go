@@ -65,11 +65,21 @@ func (m CraftingMaterialModel) Get(id int64) (*CraftingMaterials, error) {
 func (m CraftingMaterialModel) Update(material *CraftingMaterials) error {
 	query := `
 	UPDATE craftingmaterials
-	SET title = $1, year = $2, price = $3
-	WHERE id = $4`
+	SET title = $1, year = $2, price = $3, version = version + 1
+	WHERE id = $4 AND version = $5
+	RETURNING version`
 
-	args := []interface{}{material.Title, material.Year, material.Price, material.ID}
-	return m.DB.QueryRow(query, args...).Err()
+	args := []interface{}{material.Title, material.Year, material.Price, material.ID, material.Version}
+	err := m.DB.QueryRow(query, args...).Scan(&material.Version)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrEditConflict
+		default:
+			return err
+		}
+	}
+	return nil
 }
 
 func (m CraftingMaterialModel) Delete(id int64) error {

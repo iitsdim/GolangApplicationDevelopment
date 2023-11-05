@@ -131,11 +131,15 @@ func (app *application) updateCraftingMaterialHandler(w http.ResponseWriter, r *
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
-	fmt.Println(craftingMaterial)
 
 	err = app.models.CraftingMaterials.Update(craftingMaterial)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		switch {
+		case errors.Is(err, data.ErrEditConflict):
+			app.editConflictResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
 		return
 	}
 
