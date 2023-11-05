@@ -41,10 +41,8 @@ func (m CraftingMaterialModel) Get(id int64) (*CraftingMaterials, error) {
 	where id = $1`
 
 	var material CraftingMaterials
-
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	// Importantly, use defer to make sure that we cancel the context before the Get()
-	// method returns.
+
 	defer cancel()
 
 	err := m.DB.QueryRowContext(ctx, query, id).Scan(
@@ -76,7 +74,11 @@ func (m CraftingMaterialModel) Update(material *CraftingMaterials) error {
 	RETURNING version`
 
 	args := []interface{}{material.Title, material.Year, material.Price, material.ID, material.Version}
-	err := m.DB.QueryRow(query, args...).Scan(&material.Version)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&material.Version)
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
@@ -97,7 +99,10 @@ func (m CraftingMaterialModel) Delete(id int64) error {
 	DELETE from craftingmaterials
 	where id = $1`
 
-	result, err := m.DB.Exec(query, id)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	result, err := m.DB.ExecContext(ctx, query, id)
 	if err != nil {
 		return err
 	}
@@ -123,6 +128,10 @@ func (m CraftingMaterialModel) Insert(material *CraftingMaterials) error {
 	VALUES ($1, $2, $3) RETURNING id, created_at, version`
 
 	args := []interface{}{material.Title, material.Year, material.Price}
-	res := m.DB.QueryRow(query, args...).Scan(&material.ID, &material.CreatedAt, &material.Version)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	res := m.DB.QueryRowContext(ctx, query, args...).Scan(&material.ID, &material.CreatedAt, &material.Version)
 	return res
 }
