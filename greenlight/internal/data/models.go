@@ -14,11 +14,13 @@ var (
 
 type Models struct {
 	CraftingMaterials CraftingMaterialModel
+	Users             UserModel
 }
 
 // For ease of use, we also add a New() method which returns a Models struct containing
 func NewModels(db *sql.DB) Models {
 	return Models{
 		CraftingMaterials: CraftingMaterialModel{DB: db},
+		Users:             UserModel{DB: db},
 	}
 }
