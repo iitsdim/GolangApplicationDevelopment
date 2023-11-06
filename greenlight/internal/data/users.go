@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"greenlight.dimash.net/internal/validator"
 	"time"
@@ -61,13 +62,15 @@ func (p *password) Matches(plaintextPassword string) (bool, error) {
 
 func ValidateEmail(v *validator.Validator, email string) {
 	v.Check(email != "", "email", "must be provided")
+	fmt.Println(email)
+	fmt.Println(validator.Matches(email, validator.EmailRX))
 	v.Check(validator.Matches(email, validator.EmailRX), "email", "must be a valid email address")
 }
 
 func ValidatePasswordPlaintext(v *validator.Validator, password string) {
 	v.Check(password != "", "password", "must be provided")
-	v.Check(len(password) >= 8, "password", "must be at least 8 bytes long")
-	v.Check(len(password) <= 30, "password", "must not be more than 72 bytes long")
+	v.Check(len(password) >= 6, "password", "must be at least 6 bytes long")
+	v.Check(len(password) <= 30, "password", "must not be more than 30 bytes long")
 }
 
 func ValidateUser(v *validator.Validator, user *User) {
