@@ -9,6 +9,7 @@ import (
 	"greenlight.dimash.net/internal/jsonlog"
 	"greenlight.dimash.net/internal/mailer"
 	"os"
+	"sync"
 	"time"
 )
 
@@ -51,6 +52,7 @@ type application struct {
 	logger *jsonlog.Logger
 	models data.Models
 	mailer mailer.Mailer
+	wg     sync.WaitGroup
 }
 
 func main() {
