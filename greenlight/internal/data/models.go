@@ -16,6 +16,7 @@ type Models struct {
 	CraftingMaterials CraftingMaterialModel
 	Users             UserModel
 	Tokens            TokenModel
+	Permissions       PermissionModel
 }
 
 // For ease of use, we also add a New() method which returns a Models struct containing
@@ -24,5 +25,6 @@ func NewModels(db *sql.DB) Models {
 		CraftingMaterials: CraftingMaterialModel{DB: db},
 		Users:             UserModel{DB: db},
 		Tokens:            TokenModel{DB: db},
+		Permissions:       PermissionModel{DB: db},
 	}
 }
