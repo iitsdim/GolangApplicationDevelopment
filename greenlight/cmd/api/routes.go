@@ -17,11 +17,11 @@ func (app *application) routes() http.Handler {
 	// endpoints using the HandlerFunc() method
 
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
-	router.HandlerFunc(http.MethodGet, "/v1/crafting_materials", app.requireActivatedUser(app.listCraftingMaterialsHandler))
-	router.HandlerFunc(http.MethodPost, "/v1/crafting_materials", app.requireActivatedUser(app.createCraftingMaterialHandler))
-	router.HandlerFunc(http.MethodGet, "/v1/crafting_materials/:id", app.requireActivatedUser(app.showCraftingMaterialHandler))
-	router.HandlerFunc(http.MethodPatch, "/v1/crafting_materials/:id", app.requireActivatedUser(app.updateCraftingMaterialHandler))
-	router.HandlerFunc(http.MethodDelete, "/v1/crafting_materials/:id", app.requireActivatedUser(app.deleteCraftingMaterialHandler))
+	router.HandlerFunc(http.MethodGet, "/v1/crafting_materials", app.requirePermission("craftingmaterials:read", app.listCraftingMaterialsHandler))
+	router.HandlerFunc(http.MethodPost, "/v1/crafting_materials", app.requirePermission("craftingmaterials:write", app.createCraftingMaterialHandler))
+	router.HandlerFunc(http.MethodGet, "/v1/crafting_materials/:id", app.requirePermission("craftingmaterials:read", app.showCraftingMaterialHandler))
+	router.HandlerFunc(http.MethodPatch, "/v1/crafting_materials/:id", app.requirePermission("craftingmaterials:write", app.updateCraftingMaterialHandler))
+	router.HandlerFunc(http.MethodDelete, "/v1/crafting_materials/:id", app.requirePermission("craftingmaterials:write", app.deleteCraftingMaterialHandler))
 
 	router.HandlerFunc(http.MethodPost, "/v1/movies", app.createMovieHandler)
 	router.HandlerFunc(http.MethodGet, "/v1/movies/:id", app.showMovieHandler)
