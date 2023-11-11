@@ -1,0 +1,29 @@
+version: "3.8"
+services:
+  greenlight-app:
+    depends_on: [db]
+    build:
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "4000:4000"
+    volumes:
+      - .:/usr/src/greenlight
+    command: go run ./cmd/api
+
+  db:
+    image: postgres
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - greenlight_pg:/var/lib/postgresql/data
+
+volumes:
+  greenlight_pg:

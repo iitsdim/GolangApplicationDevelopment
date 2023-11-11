@@ -17,7 +17,7 @@ echo $GREENLIGHT_DB_DSN
 connections to DB
 ```shell
 docker exec -it $DOCKER_DB bash
-psql -U postgres -d greenlight
+psql -U greenlight -d greenlight
 ```
 
 create migration to DB
