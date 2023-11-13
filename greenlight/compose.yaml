@@ -4,26 +4,23 @@ services:
     depends_on: [db]
     build:
       dockerfile: Dockerfile
-    env_file:
-      - .env
     ports:
-      - "4000:4000"
+      - 8080:8080
     volumes:
       - .:/usr/src/greenlight
     command: go run ./cmd/api
 
   db:
     image: postgres
-    env_file:
-      - .env
     environment:
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      POSTGRES_DB: greenlight
+      POSTGRES_USER: greenlight
+      POSTGRES_PASSWORD: 1
     ports:
-      - "5432:5432"
+      - 5432:5434
     volumes:
-      - greenlight_pg:/var/lib/postgresql/data
+      - greenlight_postgresql:/var/postgresql/data
+
 
 volumes:
-  greenlight_pg:
+  greenlight_postgresql:

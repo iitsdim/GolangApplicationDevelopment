@@ -16,7 +16,7 @@ echo $GREENLIGHT_DB_DSN
 
 connections to DB
 ```shell
-docker exec -it $DOCKER_DB bash
+docker exec -it greenlight-db-1 bash
 psql -U greenlight -d greenlight
 ```
 
