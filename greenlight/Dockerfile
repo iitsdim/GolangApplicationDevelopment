@@ -7,5 +7,5 @@ RUN go mod download && go mod verify
 
 COPY . .
 
-
+EXPOSE 8080
 

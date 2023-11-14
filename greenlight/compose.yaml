@@ -5,7 +5,9 @@ services:
     build:
       dockerfile: Dockerfile
     ports:
-      - 8080:8080
+      - "8080:8080"
+    networks:
+      backend:
     volumes:
       - .:/usr/src/greenlight
     command: go run ./cmd/api
@@ -17,10 +19,16 @@ services:
       POSTGRES_USER: greenlight
       POSTGRES_PASSWORD: 1
     ports:
-      - 5432:5434
+      - "127.0.0.1:5434:5432"
     volumes:
       - greenlight_postgresql:/var/postgresql/data
+    networks:
+      backend:
 
 
 volumes:
   greenlight_postgresql:
+
+networks:
+  backend:
+    driver: bridge
