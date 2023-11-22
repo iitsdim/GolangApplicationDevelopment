@@ -1,34 +1,28 @@
 version: "3.8"
 services:
-  greenlight-app:
-    depends_on: [db]
-    build:
-      dockerfile: Dockerfile
+  app:
+    build: ./
+    command: ./wait-for-postgres.sh postgresdo ./main
     ports:
       - "8080:8080"
-    networks:
-      backend:
-    volumes:
-      - .:/usr/src/greenlight
-    command: go run ./cmd/api
+    depends_on:
+      - postgres
+    environment:
+      POSTGRES_PASSWORD: 1
 
-  db:
+
+  postgres:
     image: postgres
+    container_name: greenlight_postgres
+    restart: always
     environment:
       POSTGRES_DB: greenlight
       POSTGRES_USER: greenlight
       POSTGRES_PASSWORD: 1
     ports:
-      - "127.0.0.1:5434:5432"
+      - "5432:5432"
     volumes:
-      - greenlight_postgresql:/var/postgresql/data
-    networks:
-      backend:
-
+      - greenlight_pg:/var/lib/postgresql/data
 
 volumes:
-  greenlight_postgresql:
-
-networks:
-  backend:
-    driver: bridge
+  greenlight_pg:
